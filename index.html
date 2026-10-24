@@ -1,66 +1,107 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#075e54">
-  <meta name="description" content="AddaBD — বন্ধু ও পরিবারের সঙ্গে যোগাযোগ">
-  <title>AddaBD — সবার সঙ্গে আড্ডা</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="description" content="AddaBD — বন্ধুদের ব্যক্তিগত আড্ডা">
+  <title>AddaBD — বন্ধুদের আড্ডা</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand-icon">A</div>
-    <div>
+    <div class="logo">A</div>
+    <div class="brand">
       <h1>AddaBD</h1>
       <p>সবার সঙ্গে আড্ডা</p>
     </div>
-    <button id="logoutBtn" class="logout hidden">লগআউট</button>
+    <button id="logoutBtn" class="secondary hidden">লগআউট</button>
   </header>
 
   <main class="container">
     <section id="loginPanel" class="panel">
-      <h2>স্বাগতম AddaBD-তে!</h2>
-      <p>ফোন নম্বর দিয়ে নিরাপদে লগইন করো।</p>
+      <h2 id="authTitle">AddaBD-তে লগইন</h2>
+      <p class="muted">শুধু পরিচিত বন্ধুদের জন্য</p>
 
-      <label for="phone">বাংলাদেশের ফোন নম্বর</label>
-      <input id="phone" type="tel"
-             placeholder="+8801XXXXXXXXX"
-             autocomplete="tel">
-
-      <div id="recaptcha-container"></div>
-      <button id="sendOtpBtn" class="primary">OTP পাঠাও</button>
-
-      <label for="otp">SMS-এ পাওয়া OTP</label>
-      <input id="otp" inputmode="numeric" maxlength="6"
-             placeholder="৬ সংখ্যার কোড"
-             autocomplete="one-time-code">
-
-      <button id="verifyOtpBtn" class="primary">যাচাই করে লগইন</button>
-    </section>
-
-    <section id="chatPanel" class="panel hidden">
-      <div class="chat-heading">
-        <div>
-          <h2>সবার আড্ডা</h2>
-          <p id="userInfo"></p>
-        </div>
-        <span class="online-dot">● অনলাইন</span>
+      <div class="field">
+        <label for="phone">মোবাইল নম্বর</label>
+        <input id="phone" type="tel"
+          placeholder="01XXXXXXXXX বা +8801XXXXXXXXX"
+          autocomplete="tel">
       </div>
 
-      <div id="status" role="status">লোড হচ্ছে…</div>
-      <div id="messages" class="messages"></div>
+      <div id="nameField" class="field hidden">
+        <label for="displayName">তোমার নাম</label>
+        <input id="displayName" maxlength="40"
+          placeholder="নাম লিখো" autocomplete="name">
+      </div>
 
-      <form id="messageForm" class="composer">
-        <input id="messageInput" maxlength="2000"
-               placeholder="মেসেজ লেখো…" autocomplete="off" required>
-        <button class="send-btn" type="submit">পাঠাও</button>
-      </form>
+      <div class="field">
+        <label for="sharedPassword">বন্ধুদের সাধারণ পাসওয়ার্ড</label>
+        <input id="sharedPassword" type="password"
+          placeholder="সাধারণ পাসওয়ার্ড">
+      </div>
+
+      <div class="field">
+        <label for="accountPassword">তোমার নিজস্ব অ্যাকাউন্ট পাসওয়ার্ড</label>
+        <input id="accountPassword" type="password"
+          minlength="8" placeholder="কমপক্ষে ৮ অক্ষর"
+          autocomplete="current-password">
+      </div>
+
+      <button id="authBtn" class="primary">লগইন</button>
+      <button id="toggleAuthBtn" class="text-button">
+        নতুন অ্যাকাউন্ট তৈরি করো
+      </button>
+      <p id="authStatus" class="status" role="status"></p>
+
       <p class="notice">
-        এটি প্রাথমিক সাধারণ চ্যাট রুম। এখানে পাঠানো মেসেজ অন্য
-        লগইন করা ব্যবহারকারীরাও দেখতে পারেন।
+        প্রতিটি বন্ধুর নিজস্ব অ্যাকাউন্ট পাসওয়ার্ড লাগবে।
+        সাধারণ পাসওয়ার্ড একা তোমার পরিচয় সুরক্ষিত করে না।
       </p>
+    </section>
+
+    <section id="appPanel" class="hidden">
+      <div class="panel profile-panel">
+        <div>
+          <h2 id="welcomeName">স্বাগতম!</h2>
+          <p id="myPhone" class="muted"></p>
+        </div>
+        <span class="online-dot">● AddaBD</span>
+      </div>
+
+      <section class="panel">
+        <h2>বন্ধু খুঁজো</h2>
+        <p class="muted">বন্ধুর নিবন্ধিত মোবাইল নম্বর লেখো।</p>
+        <div class="search-row">
+          <input id="friendPhone" type="tel"
+            placeholder="বন্ধুর মোবাইল নম্বর">
+          <button id="searchBtn" class="primary">খুঁজো</button>
+        </div>
+        <div id="searchResult" class="search-result"></div>
+      </section>
+
+      <section class="panel chat-panel">
+        <div class="chat-heading">
+          <div>
+            <h2 id="chatName">ব্যক্তিগত চ্যাট</h2>
+            <p id="chatPhone" class="muted">বন্ধু খুঁজে চ্যাট শুরু করো</p>
+          </div>
+          <button id="closeChatBtn" class="secondary hidden">বন্ধ করো</button>
+        </div>
+
+        <div id="chatStatus" class="status" role="status">
+          এখনো কোনো চ্যাট খোলা হয়নি।
+        </div>
+        <div id="messages" class="messages" aria-live="polite"></div>
+
+        <form id="messageForm" class="composer">
+          <input id="messageInput" maxlength="2000"
+            placeholder="মেসেজ লেখো…" autocomplete="off" required>
+          <button class="primary" type="submit">পাঠাও</button>
+        </form>
+      </section>
     </section>
   </main>
 
