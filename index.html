@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#075e54">
+  <meta name="description" content="AddaBD — বন্ধু ও পরিবারের সঙ্গে যোগাযোগ">
+  <title>AddaBD — সবার সঙ্গে আড্ডা</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-icon">A</div>
+    <div>
+      <h1>AddaBD</h1>
+      <p>সবার সঙ্গে আড্ডা</p>
+    </div>
+    <button id="logoutBtn" class="logout hidden">লগআউট</button>
+  </header>
+
+  <main class="container">
+    <section id="loginPanel" class="panel">
+      <h2>স্বাগতম AddaBD-তে!</h2>
+      <p>ফোন নম্বর দিয়ে নিরাপদে লগইন করো।</p>
+
+      <label for="phone">বাংলাদেশের ফোন নম্বর</label>
+      <input id="phone" type="tel"
+             placeholder="+8801XXXXXXXXX"
+             autocomplete="tel">
+
+      <div id="recaptcha-container"></div>
+      <button id="sendOtpBtn" class="primary">OTP পাঠাও</button>
+
+      <label for="otp">SMS-এ পাওয়া OTP</label>
+      <input id="otp" inputmode="numeric" maxlength="6"
+             placeholder="৬ সংখ্যার কোড"
+             autocomplete="one-time-code">
+
+      <button id="verifyOtpBtn" class="primary">যাচাই করে লগইন</button>
+    </section>
+
+    <section id="chatPanel" class="panel hidden">
+      <div class="chat-heading">
+        <div>
+          <h2>সবার আড্ডা</h2>
+          <p id="userInfo"></p>
+        </div>
+        <span class="online-dot">● অনলাইন</span>
+      </div>
+
+      <div id="status" role="status">লোড হচ্ছে…</div>
+      <div id="messages" class="messages"></div>
+
+      <form id="messageForm" class="composer">
+        <input id="messageInput" maxlength="2000"
+               placeholder="মেসেজ লেখো…" autocomplete="off" required>
+        <button class="send-btn" type="submit">পাঠাও</button>
+      </form>
+      <p class="notice">
+        এটি প্রাথমিক সাধারণ চ্যাট রুম। এখানে পাঠানো মেসেজ অন্য
+        লগইন করা ব্যবহারকারীরাও দেখতে পারেন।
+      </p>
+    </section>
+  </main>
+
+  <footer>© <span id="year"></span> AddaBD</footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
