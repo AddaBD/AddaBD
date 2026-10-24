@@ -21,16 +21,33 @@ function setLoginStatus(message) {
 }
 
 function showError(error) {
-  console.error(error);
+  console.error("Firebase error code:", error?.code);
+  console.error("Firebase error message:", error?.message);
+
   const code = error?.code || "";
+
   const messages = {
-    "auth/invalid-phone-number": "ফোন নম্বরটি সঠিক নয়। +880 দিয়ে লেখো।",
-    "auth/too-many-requests": "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করো।",
-    "auth/invalid-verification-code": "OTP সঠিক নয়। আবার পরীক্ষা করো।",
-    "auth/code-expired": "OTP-এর মেয়াদ শেষ। নতুন OTP নাও।",
-    "auth/unauthorized-domain": "Firebase-এ এই ওয়েব ডোমেইন অনুমোদন করতে হবে।",
-    "auth/operation-not-allowed": "Firebase-এ Phone sign-in চালু করো।"
+    "auth/invalid-phone-number":
+      "ফোন নম্বরটি সঠিক নয়। +880 দিয়ে লেখো।",
+
+    "auth/too-many-requests":
+      "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করো।",
+
+    "auth/invalid-verification-code":
+      "OTP সঠিক নয়। আবার পরীক্ষা করো।",
+
+    "auth/code-expired":
+      "OTP-এর মেয়াদ শেষ। নতুন OTP নাও।",
+
+    "auth/unauthorized-domain":
+      "Firebase-এ এই ওয়েব ডোমেইন অনুমোদন করতে হবে।",
+
+    "auth/operation-not-allowed":
+      "Firebase-এ Phone sign-in চালু করো।"
   };
+
+  // তোমার আগের showError ফাংশনের বাকি অংশ এখানে আগের মতো থাকবে।
+}
 
   const message = messages[code] ||
     `সমস্যা হয়েছে: ${error?.message || "আবার চেষ্টা করো।"}`;
