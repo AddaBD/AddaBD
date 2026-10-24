@@ -39,7 +39,6 @@ function setStatus(id, message, error = false) {
 }
 
 function showError(error, target = "authStatus") {
-  alert("TEST-123: নতুন app.js চলছে");
   alert("Error code: " + error.code);
 
   const messages = {
