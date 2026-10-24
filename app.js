@@ -21,8 +21,9 @@ function setLoginStatus(message) {
 }
 
 function showError(error) {
-  console.error("AddaBD error:", error);
-
+  console.error("Firebase error code:", error.code);
+  console.error("Firebase error message:", error.message);
+  console.error("Full Firebase error:", error);
   const errors = {
     "auth/invalid-phone-number": "ফোন নম্বরটি সঠিক নয়।",
     "auth/too-many-requests": "অনেকবার চেষ্টা হয়েছে। পরে আবার চেষ্টা করো।",
