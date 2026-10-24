@@ -3,7 +3,6 @@ const $ = id => document.getElementById(id);
 // GitHub-এর public source code-এ এই পাসওয়ার্ড দেখা যাবে।
 // এটি শুধু অতিরিক্ত প্রবেশ-শর্ত, নিরাপদ পরিচয় যাচাই নয়।
 const FRIENDS_GATE_PASSWORD = "AddaBD2026";
-
 let isSignup = false;
 let currentUser = null;
 let currentProfile = null;
