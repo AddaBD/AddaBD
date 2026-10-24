@@ -1,11 +1,11 @@
 const firebaseConfig = {
-  apiKey: "তোমার-বর্তমান-apiKey",
+  apiKey: "AIzaSyB3RsUpOo5c481sgAD2KFh6xs45VVuJhc8",
   authDomain: "addabd.firebaseapp.com",
   projectId: "addabd",
   storageBucket: "addabd.firebasestorage.app",
-  messagingSenderId: "তোমার-বর্তমান-messagingSenderId",
-  appId: "তোমার-বর্তমান-appId",
-  measurementId: "তোমার-বর্তমান-measurementId"
+  messagingSenderId: "489130728558",
+  appId: "1:489130728558:web:ddc5b6a6355c95c6b99a7f",
+  measurementId: "G-YHWEHNJMTW"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -14,5 +14,6 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 auth.languageCode = "bn";
+
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .catch(error => console.error("Session persistence:", error));
