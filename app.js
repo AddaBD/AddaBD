@@ -1,59 +1,44 @@
 console.log("AddaBD app.js loaded");
-console.log("Firebase:", typeof firebase);$ = (id) => document.getElementById(id);
+
+const $ = (id) => document.getElementById(id);
 
 const loginPanel = $("loginPanel");
 const chatPanel = $("chatPanel");
 const sendOtpBtn = $("sendOtpBtn");
 const verifyOtpBtn = $("verifyOtpBtn");
 const logoutBtn = $("logoutBtn");
-const statusEl = $("status");
 const messagesEl = $("messages");
 
 let confirmationResult = null;
-let unsubscribeMessages = null;
 let recaptchaVerifier = null;
+let unsubscribeMessages = null;
 let currentUser = null;
 
 $("year").textContent = new Date().getFullYear();
 
 function setLoginStatus(message) {
-  $("loginPanel").querySelector("p").textContent = message;
+  loginPanel.querySelector("p").textContent = message;
 }
 
 function showError(error) {
-  console.error("Firebase error code:", error?.code);
-  console.error("Firebase error message:", error?.message);
+  console.error("AddaBD error:", error);
 
-  const code = error?.code || "";
-
-  const messages = {
-    "auth/invalid-phone-number":
-      "ফোন নম্বরটি সঠিক নয়। +880 দিয়ে লেখো।",
-
-    "auth/too-many-requests":
-      "অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করো।",
-
-    "auth/invalid-verification-code":
-      "OTP সঠিক নয়। আবার পরীক্ষা করো।",
-
-    "auth/code-expired":
-      "OTP-এর মেয়াদ শেষ। নতুন OTP নাও।",
-
-    "auth/unauthorized-domain":
-      "Firebase-এ এই ওয়েব ডোমেইন অনুমোদন করতে হবে।",
-
-    "auth/operation-not-allowed":
-  "Firebase Phone sign-in প্রত্যাখ্যান করেছে। Phone provider, project এবং Firebase সেটিংস পরীক্ষা করো।"
+  const errors = {
+    "auth/invalid-phone-number": "ফোন নম্বরটি সঠিক নয়।",
+    "auth/too-many-requests": "অনেকবার চেষ্টা হয়েছে। পরে আবার চেষ্টা করো।",
+    "auth/invalid-verification-code": "OTP ভুল হয়েছে। আবার যাচাই করো।",
+    "auth/code-expired": "OTP-এর মেয়াদ শেষ। নতুন OTP নাও।",
+    "auth/unauthorized-domain": "Firebase-এ GitHub Pages ডোমেইন অনুমোদন করো।",
+    "auth/operation-not-allowed": "Firebase Authentication-এ Phone sign-in চালু করো।",
+    "auth/captcha-check-failed": "reCAPTCHA যাচাই হয়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করো।",
+    "auth/quota-exceeded": "আজকের SMS সীমা শেষ হয়েছে। পরে চেষ্টা করো।",
+    "auth/network-request-failed": "ইন্টারনেট সংযোগ পরীক্ষা করো।"
   };
 
-  // তোমার আগের showError ফাংশনের বাকি অংশ এখানে আগের মতো থাকবে।
-}
-
-  const message = messages[code] ||
-    `সমস্যা হয়েছে: ${error?.message || "আবার চেষ্টা করো।"}`;
-
-  setLoginStatus(message);
-  statusEl.textContent = message;
+  setLoginStatus(
+    errors[error.code] ||
+    "সমস্যা হয়েছে: " + (error.message || error.code || "অজানা ত্রুটি")
+  );
 }
 
 sendOtpBtn.addEventListener("click", async () => {
@@ -65,47 +50,66 @@ sendOtpBtn.addEventListener("click", async () => {
   }
 
   sendOtpBtn.disabled = true;
-  setLoginStatus("reCAPTCHA তৈরি হচ্ছে…");
+  setLoginStatus("reCAPTCHA প্রস্তুত হচ্ছে...");
 
   try {
     if (recaptchaVerifier) {
-      recaptchaVerifier.clear();
+      try {
+        recaptchaVerifier.clear();
+      } catch (e) {
+        console.warn("reCAPTCHA clear:", e);
+      }
       recaptchaVerifier = null;
     }
 
+    $("recaptcha-container").innerHTML = "";
+
     recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
       "recaptcha-container",
-      { size: "normal" }
+      {
+        size: "normal",
+        callback: () => {
+          setLoginStatus("reCAPTCHA সম্পন্ন হয়েছে।");
+        },
+        "expired-callback": () => {
+          setLoginStatus("reCAPTCHA-এর মেয়াদ শেষ। আবার যাচাই করো।");
+        }
+      }
     );
 
     await recaptchaVerifier.render();
-    setLoginStatus("reCAPTCHA সম্পন্ন করে OTP পাঠাও।");
+
+    setLoginStatus("reCAPTCHA সম্পন্ন করো, তারপর আবার OTP পাঠাও চাপো।");
   } catch (error) {
-    console.error("reCAPTCHA error:", error.code, error.message);
-    setLoginStatus(
-      "reCAPTCHA তৈরি হয়নি: " + (error.message || error.code || "অজানা সমস্যা")
-    );
+    showError(error);
     sendOtpBtn.disabled = false;
     return;
   }
 
+  sendOtpBtn.disabled = false;
+
+  // প্রথমবার reCAPTCHA দেখাবে। পরেরবার বোতাম চাপলে OTP পাঠাবে।
+  sendOtpBtn.onclick = null;
+  sendOtpBtn.addEventListener("click", sendOtpAfterCaptcha, { once: true });
+});
+
+async function sendOtpAfterCaptcha() {
+  const phone = $("phone").value.trim();
+  sendOtpBtn.disabled = true;
+
   try {
-    confirmationResult = await auth.signInWithPhoneNumber(
+    setLoginStatus("OTP পাঠানো হচ্ছে...");
+    confirmationResult = await firebase.auth().signInWithPhoneNumber(
       phone,
       recaptchaVerifier
     );
-
-    setLoginStatus("OTP পাঠানো হয়েছে। SMS দেখে কোড লেখো।");
+    setLoginStatus("OTP পাঠানো হয়েছে। SMS-এর ৬ সংখ্যার কোড লেখো।");
   } catch (error) {
     showError(error);
-    if (recaptchaVerifier) {
-      recaptchaVerifier.clear();
-      recaptchaVerifier = null;
-    }
   } finally {
     sendOtpBtn.disabled = false;
   }
-});
+}
 
 verifyOtpBtn.addEventListener("click", async () => {
   const code = $("otp").value.trim();
@@ -124,7 +128,7 @@ verifyOtpBtn.addEventListener("click", async () => {
 
   try {
     await confirmationResult.confirm(code);
-    setLoginStatus("লগইন সফল!");
+    setLoginStatus("লগইন সফল হয়েছে!");
   } catch (error) {
     showError(error);
   } finally {
@@ -134,73 +138,67 @@ verifyOtpBtn.addEventListener("click", async () => {
 
 logoutBtn.addEventListener("click", async () => {
   try {
-    await auth.signOut();
+    await firebase.auth().signOut();
   } catch (error) {
     showError(error);
   }
 });
 
-auth.onAuthStateChanged((user) => {
+firebase.auth().onAuthStateChanged((user) => {
   currentUser = user;
 
-  loginPanel.classList.toggle("hidden", !!user);
-  chatPanel.classList.toggle("hidden", !user);
-  logoutBtn.classList.toggle("hidden", !user);
-
-  if (unsubscribeMessages) {
-    unsubscribeMessages();
-    unsubscribeMessages = null;
-  }
-
   if (user) {
-    $("userInfo").textContent = user.phoneNumber || "Signed in";
-    statusEl.textContent = "চ্যাট সংযোগ করা হচ্ছে…";
+    loginPanel.classList.add("hidden");
+    chatPanel.classList.remove("hidden");
+    logoutBtn.classList.remove("hidden");
+
+    $("userInfo").textContent = user.phoneNumber || "AddaBD ব্যবহারকারী";
     startMessages();
+  } else {
+    loginPanel.classList.remove("hidden");
+    chatPanel.classList.add("hidden");
+    logoutBtn.classList.add("hidden");
+
+    if (unsubscribeMessages) {
+      unsubscribeMessages();
+      unsubscribeMessages = null;
+    }
   }
 });
 
 function startMessages() {
-  unsubscribeMessages = db.collection("messages")
-    .orderBy("createdAt", "desc")
-    .limit(100)
+  if (unsubscribeMessages) unsubscribeMessages();
+
+  unsubscribeMessages = firebase.firestore()
+    .collection("messages")
+    .orderBy("createdAt", "asc")
+    .limitToLast(100)
     .onSnapshot((snapshot) => {
-      messagesEl.replaceChildren();
+      messagesEl.innerHTML = "";
 
-      const docs = [...snapshot.docs].reverse();
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const item = document.createElement("div");
+        item.className = "message";
 
-      for (const doc of docs) {
-        const message = doc.data();
+        const sender = document.createElement("strong");
+        sender.textContent =
+          data.uid === currentUser?.uid
+            ? "তুমি"
+            : (data.phone || "AddaBD ব্যবহারকারী");
 
-        const card = document.createElement("div");
-        card.className = "message" +
-          (message.uid === currentUser.uid ? " mine" : "");
+        const text = document.createElement("p");
+        text.textContent = data.text || "";
 
-        const sender = document.createElement("div");
-        sender.className = "sender";
-        sender.textContent = message.phone || "AddaBD user";
+        item.append(sender, text);
+        messagesEl.appendChild(item);
+      });
 
-        const body = document.createElement("div");
-        body.className = "body";
-        body.textContent = message.text || "";
-
-        const time = document.createElement("div");
-        time.className = "time";
-
-        if (message.createdAt?.toDate) {
-          time.textContent = message.createdAt.toDate()
-            .toLocaleString("bn-BD");
-        }
-
-        card.append(sender, body, time);
-        messagesEl.appendChild(card);
-      }
-
-      statusEl.textContent = `${snapshot.size}টি সাম্প্রতিক মেসেজ`;
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }, (error) => {
-      showError(error);
-      statusEl.textContent =
-        "চ্যাট লোড হয়নি। Firestore Rules ও Database সেটিংস দেখো।";
+      console.error("Messages error:", error);
+      $("status").textContent =
+        "মেসেজ লোড হয়নি। Firestore Rules পরীক্ষা করো।";
     });
 }
 
@@ -214,21 +212,17 @@ $("messageForm").addEventListener("submit", async (event) => {
 
   if (!text) return;
 
-  const button = $("messageForm").querySelector("button");
-  button.disabled = true;
-
   try {
-    await db.collection("messages").add({
+    await firebase.firestore().collection("messages").add({
       uid: currentUser.uid,
-      phone: currentUser.phoneNumber || "AddaBD user",
-      text,
+      phone: currentUser.phoneNumber || "",
+      text: text,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     input.value = "";
   } catch (error) {
-    showError(error);
-  } finally {
-    button.disabled = false;
+    console.error("Send message error:", error);
+    $("status").textContent = "মেসেজ পাঠানো যায়নি। আবার চেষ্টা করো।";
   }
 });
