@@ -65,10 +65,12 @@ sendOtpBtn.addEventListener("click", async () => {
   }
 
   sendOtpBtn.disabled = true;
+  setLoginStatus("reCAPTCHA তৈরি হচ্ছে…");
 
   try {
     if (recaptchaVerifier) {
       recaptchaVerifier.clear();
+      recaptchaVerifier = null;
     }
 
     recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
@@ -77,7 +79,17 @@ sendOtpBtn.addEventListener("click", async () => {
     );
 
     await recaptchaVerifier.render();
+    setLoginStatus("reCAPTCHA সম্পন্ন করে OTP পাঠাও।");
+  } catch (error) {
+    console.error("reCAPTCHA error:", error.code, error.message);
+    setLoginStatus(
+      "reCAPTCHA তৈরি হয়নি: " + (error.message || error.code || "অজানা সমস্যা")
+    );
+    sendOtpBtn.disabled = false;
+    return;
+  }
 
+  try {
     confirmationResult = await auth.signInWithPhoneNumber(
       phone,
       recaptchaVerifier
@@ -87,7 +99,7 @@ sendOtpBtn.addEventListener("click", async () => {
   } catch (error) {
     showError(error);
     if (recaptchaVerifier) {
-      try { recaptchaVerifier.clear(); } catch (_) {}
+      recaptchaVerifier.clear();
       recaptchaVerifier = null;
     }
   } finally {
