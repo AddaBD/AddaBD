@@ -43,7 +43,7 @@ function showError(error) {
       "Firebase-এ এই ওয়েব ডোমেইন অনুমোদন করতে হবে।",
 
     "auth/operation-not-allowed":
-      "Firebase-এ Phone sign-in চালু করো।"
+  "Firebase Phone sign-in প্রত্যাখ্যান করেছে। Phone provider, project এবং Firebase সেটিংস পরীক্ষা করো।"
   };
 
   // তোমার আগের showError ফাংশনের বাকি অংশ এখানে আগের মতো থাকবে।
