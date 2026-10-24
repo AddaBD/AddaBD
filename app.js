@@ -1,4 +1,5 @@
-const $ = (id) => document.getElementById(id);
+console.log("AddaBD app.js loaded");
+console.log("Firebase:", typeof firebase);$ = (id) => document.getElementById(id);
 
 const loginPanel = $("loginPanel");
 const chatPanel = $("chatPanel");
