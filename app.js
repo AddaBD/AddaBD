@@ -39,7 +39,7 @@ function setStatus(id, message, error = false) {
 }
 
 function showError(error, target = "authStatus") {
-  console.error("AddaBD:", error.code, error.message);
+  alert("Error code: " + error.code);
 
   const messages = {
     "auth/email-already-in-use": "এই নম্বরের অ্যাকাউন্ট আগে তৈরি হয়েছে। লগইন করো।",
