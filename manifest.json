@@ -1,0 +1,13 @@
+{
+  "id": "./",
+  "name": "AddaBD - Messaging App",
+  "short_name": "AddaBD",
+  "description": "বন্ধু ও পরিবারের সঙ্গে যোগাযোগ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef3f1",
+  "theme_color": "#075e54",
+  "lang": "bn"
+}
